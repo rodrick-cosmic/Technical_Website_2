@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>DICE</title>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="keywords" content="HTML & CSS">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="refresh" content="30">
+    <meta name="author" content="Kyle Abrahams">
+    <meta name="description" content="Data-Art">
+
+    <title>CONSTRUCT</title>
+
+    <link rel="stylesheet" type="text/css" href="css/Styleguide.css">
+    <link rel="stylesheet" href="Normalize.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.carousel.min.css"/>
+    <link rel="Shortcut icon" href="images/NPOC variant1.jpg"/>
+    
+</head>
+<nav class="nav" id="nav">
+    <header class="nav-center">
+  
+
+      <header class="nav-header">
+        <img src="" class="nav-logo" alt="" />
+        <button class="nav-btn" id="nav-btn">
+          <i class="fas fa-bars"></i>
+        </button>
+      </header>
+        
+        <ul class="nav-links">
+      
+            
+            <li><a href="index.html" class="menu-btn">/Home</a></li>
+            <li><a href="Blog.html" class="menu-btn">/Blog</a></li>
+            <li><a href="Data Visualization.html" class="menu-btn">/Data Visualization</a></li>
+            <li><a href="Styleguide.html" class="menu-btn">/The Construct</a></li>
+          
+            
+
+        </ul>
+    </header>
+ </nav>
+  <body>
+    <div id="canvas" draggable="true"></div>
+    <br />
+    <br />
+    <button onclick="dice_1()">Cycle Dice</button>
+  </body>
+  <style>
+    body {
+      background-color: rgb(20, 20, 20);
+      color: greenyellow;
+      font-size: small;
+      font-family: SFMono-Regular, Consolas, "Courier New", "BIZ UDGothic",
+        Meiryo, monospace;
+      -webkit-touch-callout: none;
+      -webkit-user-select: none;
+      -khtml-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+    }
+    
+  </style>
+  <script lang="javascript">
+    class Canvas {
+        constructor(id, width, height, height_ratio, color_list) {
+            this.dom = document.getElementById(id);
+            this.width = width;
+            this.height = height;
+            this.height_ratio = height_ratio;
+            this.color_list = color_list;
+ 
+            this.color = new Array(height);
+            for(let i = 0; i < this.height; i++) {
+                this.color[i] = new Array(this.width).fill(color_list[0]);
+            }
+            this.depth = new Array(height);
+            for(let i = 0; i < this.height; i++) {
+                this.depth[i] = new Array(this.width).fill(1.0);
+            }
+        }
+ 
+        refresh(){
+            for(let i = 0; i < this.height; i++) {
+                for(let j = 0; j < this.width; j++) {
+                    this.color[i][j] = this.color_list[0];
+                }
+            }
+            for(let i = 0; i < this.height; i++) {
+                for(let j = 0; j < this.width; j++) {
+                    this.depth[i][j] = 1.0;
+                }
+            }
+        }
+ 
+        draw(){
+            this.dom.innerHTML = "";
+            for(let i = 0; i < this.height; i++) {
+                this.dom.innerHTML += this.color[i].join("") + "<br>";
+            }
+        }
+    }
+ 
+    class Vector {
+        constructor(x, y, z, w = 1){
+            this.x = x;
+            this.y = y;
+            this.z = z;
+            this.w = w;
+        }
+        static add(a, b){
+            return new Vector(a.x + b.x, a.y + b.y, a.z + b.z);
+        }
+ 
+        static sub(a, b){
+            return new Vector(a.x - b.x, a.y - b.y, a.z - b.z);
+        }
+ 
+        static mult(a, s){
+            return new Vector(a.x * s, a.y * s, a.z * s);
+        }
+ 
+        static div(a, s){
+            return new Vector(a.x / s, a.y / s, a.z / s);
+        }
+ 
+        static dot(a, b){
+            return a.x * b.x + a.y * b.y + a.z * b.z;
+        }
+ 
+        static cross(a, b){
+            return new Vector(a.y * b.z - a.z * b.y, a.z * b.x - a.x * b.z, a.x * b.y - a.y * b.x );
+        }
+ 
+        static magnitude(a){
+            return Math.sqrt(a.x * a.x + a.y * a.y + a.z * a.z);
+        }
+ 
+        static rotateX(a, ang){
+            var rad = ang * (Math.PI/180);
+            return new Vector(a.x, a.y * Math.cos(rad) - a.z * Math.sin(rad), a.y * Math.sin(rad) + a.z * Math.cos(rad));
+        }
+ 
+        static rotateY(a, ang){
+            var rad = ang * (Math.PI/180);
+            return new Vector(a.x * Math.cos(rad) + a.z * Math.sin(rad), a.y, -a.x * Math.sin(rad) + a.z * Math.cos(rad));
+        }
+ 
+        static rotateZ(a, ang){
+            var rad = ang * (Math.PI/180);
+            return new Vector( a.x * Math.cos(rad) - a.y * Math.sin(rad), a.x * Math.sin(rad) + a.y * Math.cos(rad), a.z);
+        }
+ 
+        static rotate(a, angVector) {
+            return this.rotateZ(this.rotateY(this.rotateX(a, angVector.x), angVector.y), angVector.z);
+        }
+ 
+        static toCameraSpace(vector, camera){
+            let v = Vector.rotate(Vector.sub(vector, camera.position), Vector.mult(camera.angle, (-1)));
+            let x = (v.x * (camera.height / camera.width)) / Math.tan( camera.aov / 2 );
+            let y = v.y / Math.tan( camera.aov / 2 );
+            let z = v.z * (camera.far * ( 1 / (camera.far -camera.near ))) + ( (camera.far * (-camera.near)) / (camera.far -camera.near )   );
+            let w = v.z;
+            return new Vector( x/w, y/ w, z/ w );
+        }
+ 
+        static angle(a, b)
+        {
+            return Math.acos( (a.x * b.x + a.y * b.y + a.z * b.z ) / ( Math.sqrt( a.x * a.x + a.y * a.y + a.z * a.z) * Math.sqrt( b.x * b.x + b.y * b.y + b.z * b.z))) * ( 180 / Math.PI );
+        }
+ 
+        static edge(a, b, p)
+        {
+            let ab = Vector.sub(b, a);
+            let ap = Vector.sub(p, a);
+            return ab.x * ap.y - ab.y * ap.x;
+        }
+    }
+ 
+    class Light {
+        constructor(position, angle, power){
+            this.position = position;
+            this.angle = angle;
+            this.power = power;
+        }
+    }
+ 
+    class Camera {
+        constructor(position, angle, width, height, near, far, aov){
+            this.position = position;
+            this.angle = angle;
+            this.width = width;
+            this.height = height;
+            this.near = near;
+            this.far = far;
+            this.aov = aov;
+        }
+    }
+ 
+    class Dice {
+        constructor(position, angle, scale, texture, texture_size){
+            this.position = position;
+            this.angle = angle;
+            this.scale = scale;
+            this.texture = texture;
+            this.texture_size = texture_size;
+            this.calcVertex();
+            this.calcNormalVector();
+        }
+ 
+        calcVertex(){
+            this.vertex_bottom_a = Vector.add(Vector.rotate(new Vector(-(this.scale/2), -(this.scale/2), - (this.scale/2)), this.angle), this.position);
+            this.vertex_bottom_b = Vector.add(Vector.rotate(new Vector((this.scale/2), -(this.scale/2), -(this.scale/2)), this.angle), this.position);
+            this.vertex_bottom_c = Vector.add(Vector.rotate(new Vector(-(this.scale/2), -(this.scale/2), (this.scale/2)), this.angle), this.position);
+            this.vertex_bottom_d = Vector.add(Vector.rotate(new Vector(+ (this.scale/2), -(this.scale/2), (this.scale/2)), this.angle), this.position);
+            this.vertex_top_a = Vector.add(Vector.rotate(new Vector(- (this.scale/2), (this.scale/2), -(this.scale/2)), this.angle), this.position);
+            this.vertex_top_b = Vector.add(Vector.rotate(new Vector(+ (this.scale/2), (this.scale/2),  -(this.scale/2)), this.angle), this.position);
+            this.vertex_top_c = Vector.add(Vector.rotate(new Vector(- (this.scale/2), (this.scale/2), (this.scale/2)), this.angle), this.position);
+            this.vertex_top_d = Vector.add(Vector.rotate(new Vector(+ (this.scale/2), (this.scale/2), (this.scale/2)), this.angle), this.position);
+        }
+ 
+        calcNormalVector(){
+            this.nv_top = Vector.cross(Vector.sub(this.vertex_top_b,this.vertex_top_a), Vector.sub(this.vertex_top_c,this.vertex_top_a));
+            this.nv_south = Vector.cross(Vector.sub(this.vertex_bottom_a,this.vertex_top_a), Vector.sub(this.vertex_top_b,this.vertex_top_a));
+            this.nv_north = Vector.cross(Vector.sub(this.vertex_bottom_c,this.vertex_bottom_d), Vector.sub(this.vertex_top_d,this.vertex_bottom_d));
+            this.nv_east = Vector.cross(Vector.sub(this.vertex_top_d,this.vertex_bottom_d), Vector.sub(this.vertex_bottom_b,this.vertex_bottom_d));
+            this.nv_west = Vector.cross(Vector.sub(this.vertex_top_c,this.vertex_top_a), Vector.sub(this.vertex_bottom_a,this.vertex_top_a));
+            this.nv_bottom = Vector.cross(Vector.sub(this.vertex_bottom_c,this.vertex_bottom_a), Vector.sub(this.vertex_bottom_b,this.vertex_bottom_a));
+        }
+ 
+        calcCameraSpace(camera){
+            this.camera_vertex_bottom_a = Vector.toCameraSpace(this.vertex_bottom_a , camera);
+            this.camera_vertex_bottom_b = Vector.toCameraSpace(this.vertex_bottom_b , camera);
+            this.camera_vertex_bottom_c = Vector.toCameraSpace(this.vertex_bottom_c , camera);
+            this.camera_vertex_bottom_d = Vector.toCameraSpace(this.vertex_bottom_d , camera);
+            this.camera_vertex_top_a = Vector.toCameraSpace(this.vertex_top_a , camera);
+            this.camera_vertex_top_b = Vector.toCameraSpace(this.vertex_top_b , camera);
+            this.camera_vertex_top_c = Vector.toCameraSpace(this.vertex_top_c , camera);
+            this.camera_vertex_top_d = Vector.toCameraSpace(this.vertex_top_d , camera);
+ 
+            this.window_vertex_bottom_a = new Vector(((this.camera_vertex_bottom_a.x + 1) / 2) * camera.width, ((this.camera_vertex_bottom_a.y + 1) / 2) * camera.height, this.camera_vertex_bottom_a.z);
+            this.window_vertex_bottom_b = new Vector(((this.camera_vertex_bottom_b.x + 1) / 2) * camera.width, ((this.camera_vertex_bottom_b.y + 1) / 2) * camera.height, this.camera_vertex_bottom_b.z);
+            this.window_vertex_bottom_c = new Vector(((this.camera_vertex_bottom_c.x + 1) / 2) * camera.width, ((this.camera_vertex_bottom_c.y + 1) / 2) * camera.height, this.camera_vertex_bottom_c.z);
+            this.window_vertex_bottom_d = new Vector(((this.camera_vertex_bottom_d.x + 1) / 2) * camera.width, ((this.camera_vertex_bottom_d.y + 1) / 2) * camera.height, this.camera_vertex_bottom_d.z);
+            this.window_vertex_top_a = new Vector(((this.camera_vertex_top_a.x + 1) / 2) * camera.width, ((this.camera_vertex_top_a.y + 1) / 2) * camera.height, this.camera_vertex_top_a.z);
+            this.window_vertex_top_b = new Vector(((this.camera_vertex_top_b.x + 1) / 2) * camera.width, ((this.camera_vertex_top_b.y + 1) / 2) * camera.height, this.camera_vertex_top_b.z);
+            this.window_vertex_top_c = new Vector(((this.camera_vertex_top_c.x + 1) / 2) * camera.width, ((this.camera_vertex_top_c.y + 1) / 2) * camera.height, this.camera_vertex_top_c.z);
+            this.window_vertex_top_d = new Vector(((this.camera_vertex_top_d.x + 1) / 2) * camera.width, ((this.camera_vertex_top_d.y + 1) / 2) * camera.height, this.camera_vertex_top_d.z);
+        }
+ 
+        draw(canvas, camera, light){
+            this.calcVertex();
+            this.calcNormalVector();
+            this.calcCameraSpace(camera);
+            let camera_dir =  Vector.rotate(new Vector(0.0, 0.0, 1.0),  camera.angle);
+            let light_dir =  Vector.rotate(new Vector(0.0, 0.0, 1.0), light.angle);
+            let brightness;
+            brightness =  Math.round (((180 - Vector.angle( this.nv_top, light_dir)) / 180) * light.power * (canvas.color_list.length - 1));
+            this.drawPlane(canvas, camera, this.window_vertex_top_c, this.window_vertex_top_a, this.window_vertex_top_d, "one", 1, brightness);
+            this.drawPlane(canvas, camera, this.window_vertex_top_b, this.window_vertex_top_d, this.window_vertex_top_a, "one", 0, brightness);
+ 
+ 
+            brightness =  Math.round (((180 - Vector.angle(this.nv_south,light_dir)) / 180) * light.power * (canvas.color_list.length - 1));
+            this.drawPlane(canvas, camera, this.window_vertex_top_a, this.window_vertex_bottom_a, this.window_vertex_top_b, "two", 1, brightness);
+            this.drawPlane(canvas, camera, this.window_vertex_bottom_b, this.window_vertex_top_b, this.window_vertex_bottom_a, "two", 0, brightness);
+ 
+ 
+            brightness =  Math.round (((180 - Vector.angle( this.nv_east,light_dir)) / 180) * light.power * (canvas.color_list.length - 1));
+            this.drawPlane(canvas, camera, this.window_vertex_top_b, this.window_vertex_bottom_b, this.window_vertex_top_d, "three", 1, brightness);
+            this.drawPlane(canvas, camera, this.window_vertex_bottom_d, this.window_vertex_top_d, this.window_vertex_bottom_b, "three", 0, brightness);
+ 
+ 
+            brightness =  Math.round (((180 - Vector.angle( this.nv_west,light_dir)) / 180) * light.power * (canvas.color_list.length - 1));
+            this.drawPlane(canvas, camera, this.window_vertex_top_c, this.window_vertex_bottom_c, this.window_vertex_top_a, "four", 1, brightness);
+            this.drawPlane(canvas, camera, this.window_vertex_bottom_a, this.window_vertex_top_a, this.window_vertex_bottom_c, "four", 0, brightness);
+ 
+            brightness =  Math.round (((180 - Vector.angle(this.nv_north,light_dir)) / 180) * light.power * (canvas.color_list.length - 1));
+            this.drawPlane(canvas, camera, this.window_vertex_top_d, this.window_vertex_bottom_d, this.window_vertex_top_c, "five", 1, brightness);
+            this.drawPlane(canvas, camera, this.window_vertex_bottom_c, this.window_vertex_top_c, this.window_vertex_bottom_d, "five", 0, brightness);
+ 
+            brightness =  Math.round (((180 - Vector.angle(this.nv_bottom,light_dir)) / 180) * light.power * (canvas.color_list.length - 1));
+            this.drawPlane(canvas, camera, this.window_vertex_bottom_a, this.window_vertex_bottom_c, this.window_vertex_bottom_b, "six", 1, brightness);
+            this.drawPlane(canvas, camera, this.window_vertex_bottom_d, this.window_vertex_bottom_b, this.window_vertex_bottom_c, "six", 0, brightness);
+ 
+        }
+ 
+        drawPlane(canvas, camera, p1, p2, p3, texture_name, uv_type, brightness = 0)
+        {
+            let minX = Math.round (Math.min(p1.x, p2.x, p3.x));
+            let minY = Math.round (Math.min(p1.y, p2.y, p3.y) / canvas.height_ratio);
+            let maxX = Math.round (Math.max(p1.x, p2.x, p3.x));
+            let maxY = Math.round (Math.max(p1.y, p2.y, p3.y) / canvas.height_ratio);
+            minX = (minX < 0) ? 0 :  minX;
+            minY = (minY < 0) ? 0 :  minY;
+            maxX = (maxX > (canvas.width - 1)) ? canvas.width - 1 :  maxX;
+            maxY = (maxY > (canvas.height - 1)) ? canvas.height - 1 :  maxY;
+            for(let i = minY; i <= maxY; i++) {
+                for(let j = minX; j <= maxX; j++) {
+                    let p = new Vector(j + 0.5 , (i + 0.5) * canvas.height_ratio, 0);
+                    let edge1 = Vector.edge(p2, p3, p);
+                    let edge2 = Vector.edge(p3, p1, p);
+                    let edge3 = Vector.edge(p1, p2, p);
+                    if( edge1 >= 0 && edge2 >= 0 && edge3 >= 0) {
+                        let sum_e = edge1 + edge2 + edge3;
+                        let edge1_ratio = edge1 / sum_e;
+                        let edge2_ratio = edge2 / sum_e;
+                        let edge3_ratio = edge3 / sum_e;
+                        let depth = edge1_ratio * p1.z + edge2_ratio * p2.z + edge3_ratio * p3.z;
+                        if( canvas.depth[i][j] > depth) {
+                            canvas.depth[i][j] = depth;
+                            let u,v;
+                            if(uv_type == 1) {
+                                u = edge1_ratio + edge2_ratio;
+                                v = edge1_ratio + edge3_ratio;
+                            } else {
+                                u = edge3_ratio;
+                                v = edge2_ratio;
+                            }
+                            let tex_i =  Math.round(v * (this.texture_size - 1));
+                            let tex_j =  Math.round(u * (this.texture_size - 1));
+                            let tex_index = tex_i * this.texture_size + tex_j;
+                            let color_code = this.texture[texture_name][tex_index] + brightness;
+                            color_code = (color_code < 0) ? 0 : ((color_code >( canvas.color_list.length - 1) ) ? (canvas.color_list.length -1) : color_code);
+                            canvas.color[ canvas.height - i -1][j] = canvas.color_list[color_code];
+                        }
+                    }
+                }
+            }
+        }
+    }
+ 
+    const dice_texture = {
+        one : [2,2,2,2,2,2,2,
+               2,2,2,2,2,2,2,
+               2,2,2,0,2,2,2,
+               2,2,0,0,0,2,2,
+               2,2,2,0,2,2,2,
+               2,2,2,2,2,2,2,
+               2,2,2,2,2,2,2],
+        two : [2,2,2,2,2,2,2,
+               2,0,2,2,2,2,2,
+               2,2,2,2,2,2,2,
+               2,2,2,2,2,2,2,
+               2,2,2,2,2,2,2,
+               2,2,2,2,2,0,2,
+               2,2,2,2,2,2,2],
+        three : [2,2,2,2,2,2,2,
+               2,2,2,2,2,0,2,
+               2,2,2,2,2,2,2,
+               2,2,2,0,2,2,2,
+               2,2,2,2,2,2,2,
+               2,0,2,2,2,2,2,
+               2,2,2,2,2,2,2],
+        four : [2,2,2,2,2,2,2,
+               2,0,2,2,2,0,2,
+               2,2,2,2,2,2,2,
+               2,2,2,2,2,2,2,
+               2,2,2,2,2,2,2,
+               2,0,2,2,2,0,2,
+               2,2,2,2,2,2,2],
+        five : [2,2,2,2,2,2,2,
+               2,0,2,2,2,0,2,
+               2,2,2,2,2,2,2,
+               2,2,2,0,2,2,2,
+               2,2,2,2,2,2,2,
+               2,0,2,2,2,0,2,
+               2,2,2,2,2,2,2],
+        six : [2,2,2,2,2,2,2,
+               2,0,2,2,2,0,2,
+               2,2,2,2,2,2,2,
+               2,0,2,2,2,0,2,
+               2,2,2,2,2,2,2,
+               2,0,2,2,2,0,2,
+               2,2,2,2,2,2,2],
+    };
+ 
+    var canvas = new Canvas("canvas", 160, 60, 1.8 , [ "." ,"_", "-", "+", "*", "%", "#", "@", "W" ]);
+    var light =  new Light(new Vector(0, 0, 0),new Vector(80, 20, 10), 0.8);
+    var camera =  new Camera(new Vector(0, 32, 0),new Vector(12, 0, 0), 160, 120, 0.02, 5000, 70);
+    var dice =   new Dice(new Vector(-5, 17, 30), new Vector(Math.random() * 360 % 360, Math.random() * 360 % 360, Math.random() * 360 % 360), 10, dice_texture, 7);
+    var dice2 =   new Dice(new Vector(12, 32, 55), new Vector(Math.random() * 360 % 360, Math.random() * 360 % 360, Math.random() * 360 % 360), 10, dice_texture, 7);
+    var dice3 =   new Dice(new Vector(14, 18, 65), new Vector(Math.random() * 360 % 360, Math.random() * 360 % 360, Math.random() * 360 % 360), 10, dice_texture, 7);
+    var dice4 =   new Dice(new Vector(21, 21, 45), new Vector(Math.random() * 360 % 360, Math.random() * 360 % 360, Math.random() * 360 % 360), 10, dice_texture, 7);
+ 
+    var randv = { x : (Math.random() * 180) % 360, y : (Math.random() * 180) % 360, z : (Math.random() * 180) % 360 };
+    var randv2 = { x : (Math.random() * 180) % 360, y : (Math.random() * 180) % 360, z : (Math.random() * 180) % 360 };
+    var randv3 = { x : (Math.random() * 180) % 360, y : (Math.random() * 180) % 360, z : (Math.random() * 180) % 360 };
+    var randv4 = { x : (Math.random() * 180) % 360, y : (Math.random() * 180) % 360, z : (Math.random() * 180) % 360 };
+ 
+    var active = true;
+    var mouseX, mouseY, mouseX_cache, mouseY_cache = 0.0;
+    var isDrag, isShift = false;
+ 
+    canvas.dom.addEventListener('mousedown', mouseDown, false);
+    canvas.dom.addEventListener('mouseup', mouseUp, false);
+    canvas.dom.addEventListener('mousemove', mouseMove, false);
+    canvas.dom.addEventListener('wheel', mouseWheel, false);
+ 
+    function mouseDown(e) {
+        isDrag = true;
+        isShift = e.shiftKey
+    }
+ 
+    function mouseUp(e) {
+        isDrag = false;
+        isShift = false;
+    }
+ 
+    function mouseMove(e) {
+        mouseX_cache = mouseX;
+        mouseY_cache = mouseY;
+        mouseX = e.pageX;
+        mouseY = e.pageY;
+        let deltaX = mouseX - mouseX_cache;
+        let deltaY = mouseY - mouseY_cache;
+        if(isDrag) {
+            if(isShift) {
+                let v = Vector.rotate(new Vector(-deltaX * 0.2, deltaY * 0.2, 0.0), camera.angle);
+                camera.position = Vector.add (camera.position, v);
+            } else {
+                camera.angle.y = (camera.angle.y + deltaX * 0.5) % 360;
+                camera.angle.x = (camera.angle.x + deltaY * 0.5) % 360;
+            }
+        }
+    }
+ 
+    function mouseWheel(e) {
+        let moveTo =  Vector.mult(Vector.rotate(new Vector(0.0, 0.0, 1.0), camera.angle), e.deltaY);
+        camera.position = Vector.add(camera.position,  moveTo);
+        camera.position.x = (camera.position.x < - 1000) ? -1000 : camera.position.x;
+        camera.position.x = (camera.position.x > 1000) ? 1000 : camera.position.x;
+        camera.position.y = (camera.position.y < 0) ? 0 : camera.position.y;
+        camera.position.y = (camera.position.y > 2000) ? 2000 : camera.position.y;
+        camera.position.z = (camera.position.z < - 1000) ? -1000 : camera.position.z;
+        camera.position.z = (camera.position.z > 1000) ? 1000 : camera.position.z;
+ 
+    }
+ 
+    window.requestAnimationFrame(function() {
+            let t = performance.now();
+            update(t);
+        });
+ 
+    function update(beforeTime){
+        canvas.refresh();
+        let deltaTime = performance.now() - beforeTime;
+ 
+        if(active) {
+            dice.angle.x = (dice.angle.x + randv.x * deltaTime) % 360;
+            dice.angle.y = (dice.angle.y + randv.y * deltaTime) % 360;
+            dice.angle.z = (dice.angle.z + randv.z * deltaTime) % 360;
+            dice2.angle.x = (dice2.angle.x + randv2.x * deltaTime) % 360;
+            dice2.angle.y = (dice2.angle.y + randv2.y * deltaTime) % 360;
+            dice2.angle.z = (dice2.angle.z + randv2.z * deltaTime) % 360;
+            dice3.angle.x = (dice3.angle.x + randv3.x * deltaTime) % 360;
+            dice3.angle.y = (dice3.angle.y + randv3.y * deltaTime) % 360;
+            dice3.angle.z = (dice3.angle.z + randv3.z * deltaTime) % 360;
+            dice4.angle.x = (dice4.angle.x + randv3.x * deltaTime) % 360;
+            dice4.angle.y = (dice4.angle.y + randv3.y * deltaTime) % 360;
+            dice4.angle.z = (dice4.angle.z + randv3.z * deltaTime) % 360;
+           }
+        dice.draw(canvas, camera, light);
+        dice2.draw(canvas, camera, light);
+        dice3.draw(canvas, camera, light);
+        dice4.draw(canvas, camera, light);
+        canvas.draw();
+        window.requestAnimationFrame(function() {
+            let t = performance.now();
+            update(t);
+        });
+    }
+ 
+    function dice_1(){
+        if(active) {
+            active = false;
+        } else {
+            randv = { x : ( Math.random() * 180) % 360, y : (Math.random() * 180) % 360, z : (Math.random() * 180) % 360 };
+            randv2 = { x : ( Math.random() * 180) % 360, y : (Math.random() * 180) % 360, z : (Math.random() * 180) % 360 };
+            randv3 = { x : ( Math.random() * 180) % 360, y : (Math.random() * 180) % 360, z : (Math.random() * 180) % 360 };
+            randv4 = { x : ( Math.random() * 180) % 360, y : (Math.random() * 180) % 360, z : (Math.random() * 180) % 360 };
+            active = true;
+        }
+    }
+  </script>
+</html>

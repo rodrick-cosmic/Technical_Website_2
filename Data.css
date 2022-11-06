@@ -1,0 +1,104 @@
+/* global */
+body {
+    font-family: "Raleway", sans-serif;
+    background: black;
+}
+
+  foreignObject {
+    pointer-events: none;
+   
+  }
+  
+  svg {
+    display: block;
+    margin: auto;
+  }
+  
+  /* query-container */
+  #query-container {
+    display: flex;
+    justify-content: center;
+    padding: 15px;
+  
+   
+  }
+
+  #query-container a {
+   
+  
+
+      margin-right: 25px;
+      font-size: 1.25em;
+    
+  }
+
+  
+  /* tree-map */
+  #tree-map {
+    padding: 10px;
+    overflow: auto;
+  
+    
+       
+        font-family: "Playfair Display", serif;
+        font-size: 0.9em;
+        font-weight: 300;
+      
+    
+  
+    
+  }
+
+  #tree-map svg.games{
+    
+        
+    font-family: "Press Start 2P", cursive;
+    font-size: 0.8em;
+    
+        
+      
+  }
+
+  #tree-map svg.movies{
+    font-family: "Press Start 2P", cursive;
+          font-size: 0.8em;
+          
+  }
+  
+  /* tooltip */
+  #tooltip {
+    font-size: 0.9em;
+    position: absolute;
+    background: black;
+    pointer-events: none;
+    text-align: center;
+    padding: 0.5em;
+    opacity: 0;
+  
+    
+  }
+  #tooltip p{
+    margin:0;
+  }
+  .text-white{
+    padding-top: 90px;
+    color: white;
+
+  }
+
+  .text-white p{
+    font-weight: 400;
+  }
+
+  .text-center {
+    color: white;
+    padding-left: 500px;
+
+
+  }
+  .mt-3{
+    padding-left: 550px;
+  }
+ 
+  
+ 

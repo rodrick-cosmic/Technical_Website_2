@@ -1,0 +1,33 @@
+
+    body {
+        font-family: 'Courier New', Courier, monospace;
+        color: brown;
+        background-color: black;
+      }
+  
+      .rect:hover { opacity: 0.5; }
+
+      
+.link-b
+{
+  display: inline-block;
+  padding: 0.7rem 1.2rem;
+  margin-left: 70.6rem;
+  color: rgb(5, 221, 59);
+  font-size: 2.20rem;
+  font-weight: 1000;
+  line-height: 1;
+  border-radius: 1.5rem;
+  transition: 0.3s;
+  font-family: 'Courier New', Courier, monospace;
+
+
+}
+.link-b:hover
+{
+  color: #ffffff;
+  background: #ff0000;
+}
+
+    
+      

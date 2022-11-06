@@ -1,0 +1,63 @@
+
+body {
+  font-family: "Courier New", sans-serif;
+  background: black;
+  font-size: 1.5em;
+}
+foreignObject {
+  pointer-events: none;
+}
+svg {
+  display: block;
+  margin: auto;
+}
+#query-container {
+  display: flex;
+  justify-content: center;
+  padding: 15px;
+}
+#query-container a {
+    margin-right: 25px;
+    font-size: 1.25em;
+    text-align: center;
+}
+#tree-map {
+      padding: 10px;
+      overflow: auto;
+      font-family: "Courier New", serif;
+      font-size: 1em;
+      font-weight: 700; 
+}
+#tree-map svg.movies{
+  font-family: "Courier New", cursive;
+        font-size: 10em;
+}
+#tooltip {
+  font-size: 1.9em;
+  position: absolute;
+  background: black;
+  pointer-events: none;
+  text-align: center;
+  padding: 1em;
+  opacity: 0;
+}
+#tooltip p{
+  margin:0;
+}
+.text-white{
+  padding-top: 90px;
+  color: white;
+
+}
+.text-white p{
+  font-weight: 400;
+}
+
+.text-center {
+  color: white;
+  padding-left: 500px;
+}
+.mt-3{
+  padding-left: 550px;
+}
+

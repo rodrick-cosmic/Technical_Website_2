@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="keywords" content="HTML, CSS & JS">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="refresh" content="30">
+  <meta name="author" content="Kyle Abrahams">
+  <meta name="description" content="Homepage">
+
+  <title>H0M3</title>
+  <link rel="stylesheet" type="text/css" href="css/styleMain.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap"/>
+  <link rel="stylesheet" href="Normalize.css"/>
+  <link rel="Shortcut icon" href="NPOC variant1.jpg"/>
+ 
+</head>
+
+<body>
+  
+  <nav>
+      <section class="container">
+      <section class="logo">
+        <img src="logo.png" alt="White Rabbit logo image goes here!">
+      </section>
+      </section>
+    
+  </nav>
+
+<main>
+  <section class="hero">
+    <img src="1.png" class="translateX" data-speed="0.50" id="moon" alt="">
+    <img src="2.png" class="translateY" data-speed="0.35" id="clouds" alt="">
+    <img src="3.png" class="translateY" data-speed="0.15" id="mount" alt="">
+    <h1 id="text" class="translateX" data-speed="-7">  "The Matrix has you..."</h1>
+
+    <img src="4.png" class="translateY" data-speed="0.50" id="base" alt="">
+
+  </section>
+
+  
+  <section id="about" class="section-padding">
+
+  <section class="container grid">
+  <section class="left-content">
+  <section class="links a">
+  <p>What is The Matrix, you may ask. If you think you are ready to know, I present you with a choice. You can either <a href="Blog.html"> click here</a> if you are ready to go down this rabbit hole, or <a href="https://www.google.com/webhp?hl=en&sa=X&ved=0ahUKEwjV_Z7m9ZH6AhUxQUEAHY3WBBYQPAgI"> click here</a> to end this journey.
+  </p>
+  </section>
+  </section>
+
+
+    
+  </section>
+
+  </main>
+
+  <footer>
+
+  <footer class="container">
+      <a href="https://thechoiceisyours.whatisthematrix.com/uk/"> 
+        <img src="logo.png" alt="White rabbit footer image goes here!">
+      </a>
+
+      <p>&copy; <span id="date"></span> Kyle Abrahams, Made with love</p>
+    </footer>
+    <script src="./js/app.js"></script>
+ 
+   <script>
+     const translateX = document.querySelectorAll(".translateX");
+const translateY = document.querySelectorAll(".translateY");
+window.addEventListener("scroll" ,() => {
+  let scroll = window.pageYOffset;
+  translateX.forEach(element => {
+    let speed = element.dataset.speed;
+    element.style.transform = `translateX(${scroll * speed}px)`;
+  })
+  translateY.forEach(element => {
+    let speed = element.dataset.speed;
+    element.style.transform = `translateY(${scroll * speed}px)`;
+  })
+})
+   </script>
+</body>
+</html>

@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Data Visualization</title>
+  <script src="https://d3js.org/d3.v5.min.js"></script>
+  <link rel="stylesheet" href=graphstyling.css>
+  <link rel="stylesheet" href="Styleguide.css">
+    <link rel="stylesheet" href="Normalize.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.carousel.min.css"/>
+    <link rel="Shortcut icon" href="images/NPOC variant1.jpg "/>
+</head>
+<body>
+    <nav class="nav" id="nav">
+        <div class="nav-center">
+      
+  
+          <div class="nav-header">
+            <img src="" class="nav-logo" alt="" />
+            <button class="nav-btn" id="nav-btn">
+              <i class="fas fa-bars"></i>
+            </button>
+          </div>
+            
+            <ul class="nav-links">
+          
+                
+                <li><a href="index.html" class="menu-btn">/Home</a></li>
+                <li><a href="Blog.html" class="menu-btn">/Blog</a></li>
+                <li><a href="Styleguide.html" class="menu-btn">/The Construct</a></li>
+               
+    
+            </ul>
+          </div>
+        </nav>
+  
+        <footer class="link-b">
+          <h3> </h3><a href="Data Visualization.html" class="blogtitle"> Previous graph</a> </h3>
+          </footer>
+        
+
+</head>
+<body>
+
+  <div style="text-align: center;">
+    <P>Graph detailing Box-office Grossing numbers for The Matrix Films</p>
+    <div class="tooltip"> Source
+      <span class="tooltiptext"> <a href="https://www.boxofficemojo.com/franchise/fr3142029061/?ref_=bo_frs_table_53">External link</a></span>
+    </div>
+    <div id="d3-container">
+  </div>
+  <script type="text/javascript" src="graphStats.js"></script>
+  <style>
+    
+    .tooltip {
+      position: relative;
+      display: inline-block;
+      border-bottom: 1px dotted black; 
+    }
+    
+    
+    .tooltip .tooltiptext {
+      visibility: hidden;
+      width: 120px;
+      background-color: black;
+      color: #fff;
+      text-align: center;
+      padding: 5px 0;
+      border-radius: 6px;
+     
+     
+      position: absolute;
+      z-index: 1;
+    }
+    
+    
+    .tooltip:hover .tooltiptext {
+      visibility: visible;
+    }
+    </style>
+    
+   
+
+
+  
+</body>
+</html>
